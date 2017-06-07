@@ -44,12 +44,28 @@
 @property (nonatomic) BOOL zoomPhotosToFill;
 @property (nonatomic) BOOL displayNavArrows;
 @property (nonatomic) BOOL displayActionButton;
+//为满足需求
+@property (nonatomic) NSString *customActionButtonTitle;
+//为满足需求
+@property (nonatomic) UITextField *titleTextView;
+//为满足需求
+@property (nonatomic) UIBarButtonItem *leftBarButtonItemForToolBar;
+//为满足需求
+@property (nonatomic) UIBarButtonItem *rightBarButtonItemForToolBar;
+//toolBarHeight
+@property (nonatomic) NSUInteger toolBarHeight;
+//toolBarTintColor
+@property (nonatomic) UIColor *toolBarTintColor;
+//不管对否填充fixedSpace，两个button间有10个点的空间，为满足需求，设置left，right中间的固定大小，其实button会有16个点的空间。
+@property (nonatomic) NSUInteger bwfixedSpace;
 @property (nonatomic) BOOL displaySelectionButtons;
 @property (nonatomic) BOOL alwaysShowControls;
 @property (nonatomic) BOOL enableGrid;
 @property (nonatomic) BOOL enableSwipeToDismiss;
 @property (nonatomic) BOOL startOnGrid;
 @property (nonatomic) BOOL autoPlayOnAppear;
+//为满足需求
+@property (nonatomic) BOOL enableStatusBarStyleConfig;
 @property (nonatomic) NSUInteger delayToHideElements;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 

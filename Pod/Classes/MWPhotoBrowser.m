@@ -162,7 +162,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Toolbar
     _toolbar = [[UIToolbar alloc] initWithFrame:[self frameForToolbarAtOrientation:self.interfaceOrientation]];
     _toolbar.tintColor = [UIColor whiteColor];
-    _toolbar.barTintColor = nil;
+    if (self.toolBarTintColor) {
+        _toolbar.barTintColor = self.toolBarTintColor;
+    }
+    else {
+        _toolbar.barTintColor = nil;
+    }
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
     [_toolbar setBackgroundImage:nil forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsLandscapePhone];
     _toolbar.barStyle = UIBarStyleBlackTranslucent;
@@ -176,8 +181,24 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         _previousButton = [[UIBarButtonItem alloc] initWithImage:previousButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(gotoPreviousPage)];
         _nextButton = [[UIBarButtonItem alloc] initWithImage:nextButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(gotoNextPage)];
     }
+    
+    //liuhao add
+    if (self.leftBarButtonItemForToolBar) {
+        
+    }
+    
     if (self.displayActionButton) {
-        _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+        if (self.customActionButtonTitle) {
+            _actionButton = [[UIBarButtonItem alloc] initWithTitle:self.customActionButtonTitle style:UIBarButtonItemStylePlain target:self action:@selector(customActionButtonPressed:)];
+        }
+        else {
+            _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
+        }
+    }
+    
+    //liuhao add title view
+    if (self.titleTextView) {
+        self.navigationItem.titleView = self.titleTextView;
     }
     
     // Update
@@ -236,7 +257,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Toolbar items
     BOOL hasItems = NO;
     UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil];
-    fixedSpace.width = 32; // To balance action button
+    if (self.bwfixedSpace) {
+        fixedSpace.width = self.bwfixedSpace;
+    }
+    else {
+        fixedSpace.width = 32; // To balance action button
+    }
     UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
     NSMutableArray *items = [[NSMutableArray alloc] init];
 
@@ -268,6 +294,14 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
         if (_actionButton)
             self.navigationItem.rightBarButtonItem = _actionButton;
         [items addObject:fixedSpace];
+    }
+    
+    //left and right button for liuhao add
+    if (_leftBarButtonItemForToolBar && _rightBarButtonItemForToolBar) {
+        [items removeAllObjects];
+        [items addObject:_leftBarButtonItemForToolBar];
+        [items addObject:fixedSpace];
+        [items addObject:_rightBarButtonItemForToolBar];
     }
 
     // Toolbar visibility
@@ -342,18 +376,20 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             _leaveStatusBarAlone = YES;
         }
     }
-    // Set style
-    if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        _previousStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:animated];
-    }
     
-    // Navigation bar appearance
-    if (!_viewIsActive && [self.navigationController.viewControllers objectAtIndex:0] != self) {
-        [self storePreviousNavBarAppearance];
+    if (self.enableStatusBarStyleConfig) {
+        // Set style
+        if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+            _previousStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:animated];
+        }
+        
+        // Navigation bar appearance
+        if (!_viewIsActive && [self.navigationController.viewControllers objectAtIndex:0] != self) {
+            [self storePreviousNavBarAppearance];
+        }
+        [self setNavBarAppearance:animated];
     }
-    [self setNavBarAppearance:animated];
-    
     // Update UI
 	[self hideControlsAfterDelay];
     
@@ -1004,6 +1040,9 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (CGRect)frameForToolbarAtOrientation:(UIInterfaceOrientation)orientation {
     CGFloat height = 44;
+    if (self.toolBarHeight) {
+        height = self.toolBarHeight;
+    }
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone &&
         UIInterfaceOrientationIsLandscape(orientation)) height = 32;
 	return CGRectIntegral(CGRectMake(0, self.view.bounds.size.height - height, self.view.bounds.size.width, height));
@@ -1083,7 +1122,12 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     NSUInteger numberOfPhotos = [self numberOfPhotos];
     if (_gridController) {
         if (_gridController.selectionMode) {
-            self.title = NSLocalizedString(@"Select Photos", nil);
+            if (self.titleTextView) {
+                self.titleTextView.text = NSLocalizedString(@"Select Photos", nil);
+            }
+            else {
+                self.title = NSLocalizedString(@"Select Photos", nil);
+            }
         } else {
             NSString *photosText;
             if (numberOfPhotos == 1) {
@@ -1091,13 +1135,28 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
             } else {
                 photosText = NSLocalizedString(@"photos", @"Used in the context: '3 photos'");
             }
-            self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
+            if (self.titleTextView) {
+                self.titleTextView.text = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
+            }
+            else {
+                self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
+            }
         }
     } else if (numberOfPhotos > 1) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
-            self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
+            if (self.titleTextView) {
+                self.titleTextView.text = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
+            }
+            else {
+                self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
+            }
         } else {
-            self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            if (self.titleTextView) {
+                self.titleTextView.text = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            }
+            else {
+                self.title = [NSString stringWithFormat:@"%lu %@ %lu", (unsigned long)(_currentPageIndex+1), NSLocalizedString(@"of", @"Used in the context: 'Showing 1 of 3 items'"), (unsigned long)numberOfPhotos];
+            }
         }
 	} else {
 		self.title = nil;
@@ -1577,6 +1636,20 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 }
 
 #pragma mark - Actions
+
+- (void)customActionButtonPressed:(id)sender {
+    id <MWPhoto> photo = [self photoAtIndex:_currentPageIndex];
+    if ([self numberOfPhotos] > 0 && [photo underlyingImage]) {
+        
+        // If they have defined a delegate method then just message them
+        if ([self.delegate respondsToSelector:@selector(photoBrowser:actionButtonPressedForPhotoAtIndex:)]) {
+            
+            // Let delegate handle things
+            [self.delegate photoBrowser:self actionButtonPressedForPhotoAtIndex:_currentPageIndex];
+            
+        }
+    }
+}
 
 - (void)actionButtonPressed:(id)sender {
 
