@@ -70,6 +70,8 @@
 @property (nonatomic) BOOL alwaysUpdateNav;
 //为满足需求
 @property (nonatomic) BOOL alwaysDisplayActionButton;
+//为满足需求
+@property (nonatomic) BOOL alwaysCalldidDisplayPhotoAtIndexForReload;
 @property (nonatomic) NSUInteger delayToHideElements;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 

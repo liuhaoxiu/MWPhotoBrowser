@@ -994,7 +994,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
     
     // Notify delegate
-    if (index != _previousPageIndex) {
+    if (index != _previousPageIndex || self.alwaysCalldidDisplayPhotoAtIndexForReload) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:didDisplayPhotoAtIndex:)])
             [_delegate photoBrowser:self didDisplayPhotoAtIndex:index];
         _previousPageIndex = index;
