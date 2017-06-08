@@ -1142,7 +1142,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
                 self.title = [NSString stringWithFormat:@"%lu %@", (unsigned long)numberOfPhotos, photosText];
             }
         }
-    } else if (numberOfPhotos > 1) {
+    } else if (numberOfPhotos > 1 || self.alwaysUpdateNav) {
         if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
             if (self.titleTextView) {
                 self.titleTextView.text = [_delegate photoBrowser:self titleForPhotoAtIndex:_currentPageIndex];
@@ -1169,8 +1169,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     // Disable action button if there is no image or it's a video
     MWPhoto *photo = [self photoAtIndex:_currentPageIndex];
     if ([photo underlyingImage] == nil || ([photo respondsToSelector:@selector(isVideo)] && photo.isVideo)) {
-        _actionButton.enabled = NO;
-        _actionButton.tintColor = [UIColor clearColor]; // Tint to hide button
+        if (!self.alwaysDisplayActionButton) {
+            _actionButton.enabled = NO;
+            _actionButton.tintColor = [UIColor clearColor]; // Tint to hide button
+        }
     } else {
         _actionButton.enabled = YES;
         _actionButton.tintColor = nil;

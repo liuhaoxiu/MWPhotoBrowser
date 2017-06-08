@@ -66,6 +66,10 @@
 @property (nonatomic) BOOL autoPlayOnAppear;
 //为满足需求
 @property (nonatomic) BOOL enableStatusBarStyleConfig;
+//为满足需求
+@property (nonatomic) BOOL alwaysUpdateNav;
+//为满足需求
+@property (nonatomic) BOOL alwaysDisplayActionButton;
 @property (nonatomic) NSUInteger delayToHideElements;
 @property (nonatomic, readonly) NSUInteger currentIndex;
 
